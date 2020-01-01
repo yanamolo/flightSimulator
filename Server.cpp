@@ -68,6 +68,7 @@ vector<float> Server::convertData(vector<string> dataVector) {
 void Server::updateTable(vector<float> values) {
     SymbolTable *st = SymbolTable::getTable();
     int index = 0;
+    int k;
     for (float value: values) {
         st->setVarDataBySim(simArr[index], value);
         index++;
