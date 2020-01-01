@@ -65,6 +65,14 @@ vector<float> Server::convertData(vector<string> dataVector) {
     return numVector;
 }
 
+void Server::updateTable(vector<float> values) {
+    SymbolTable *st = SymbolTable::getTable();
+    int index = 0;
+    for (float value: values) {
+        st->setVarDataBySim(simArr[index], value);
+        index++;
+    }
+}
 
 void Server::buildSimStringArray() {
     simArr[airspeed_indicator] = string("/instrumentation/airspeed-indicator/indicated-speed-kt");
