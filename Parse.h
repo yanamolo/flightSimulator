@@ -4,20 +4,19 @@
 
 #ifndef EX3_PARSE_H
 #define EX3_PARSE_H
-
 #include "Defines.h"
 #include "Command.h"
 
 class Parse {
 private:
-    map<string, Command *> commandMap;
+    map<string, Command*> commandMap;
     list<string> flyCommand;
 public:
     Parse(list<string> flyList);
-
     void createMap();
-
     void parse();
+
+    ~Parse();
 };
 
 

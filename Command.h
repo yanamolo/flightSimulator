@@ -4,7 +4,6 @@
 
 #ifndef EX3_COMMAND_H
 #define EX3_COMMAND_H
-
 #include "Defines.h"
 
 class Command {

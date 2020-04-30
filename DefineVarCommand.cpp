@@ -6,9 +6,9 @@
 #include "Interpreter.h"
 
 int DefineVarCommand::execute(list<string>::iterator it) {
-    SymbolTable *s = s->getTable();
-    Interpreter *inter = new Interpreter();
-    string varName = "";
+   SymbolTable *s = s->getTable();
+   Interpreter* inter = new Interpreter();
+   string varName = "";
     if (*it == "var") {
         it++;
         varName = *it;
@@ -20,8 +20,7 @@ int DefineVarCommand::execute(list<string>::iterator it) {
             s->lockExecute('a', *it, varName, arrow, MAXVAL);
             return 5;
         } else {
-            Expression *ex = inter->interpret(*it);
-            float value = ex->calculate();
+            float value = inter->interpret(*it);
             s->lockExecute('a', "", varName, arrow, value);
             return 4;
         }
@@ -29,9 +28,9 @@ int DefineVarCommand::execute(list<string>::iterator it) {
         varName = *it;
         it++; // it points to =
         it++; // it points to the value expression
-        Expression *ex = inter->interpret(*it);
-        float value = ex->calculate();
+        float value = inter->interpret(*it);
         s->lockExecute('s', "", varName, "=", value);
+        delete inter;
         return 3;
     }
 }

@@ -9,12 +9,13 @@
 #include "Server.h"
 #include "Defines.h"
 
-class OpenServerCommand : public Command {
-    Server *server = new Server();
+class OpenServerCommand: public Command {
+    Server* server = new Server();
 public:
     int execute(list<string>::iterator it);
-
     void callingForAccept(int port);
+
+    virtual ~OpenServerCommand();
 };
 
 

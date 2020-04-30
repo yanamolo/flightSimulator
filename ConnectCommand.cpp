@@ -3,25 +3,25 @@
 //
 
 #include "ConnectCommand.h"
-
-void ConnectCommand::callingForSending(int port, const char *ip) {
+ void ConnectCommand::callingForSending(int port, const char* ip) {
     this->client->creatConnection(port, ip);
 }
 
 int ConnectCommand::execute(list<string>::iterator it) {
+    SymbolTable* s = s->getTable();
     it++;
-    const char *ip = (*it).c_str();
+    const char* ip = (*it).c_str();
     it++;
     int port;
     try {
         port = stoi(*it);
-    } catch (exception &e) {
-        auto *inter = new Interpreter();
-        Expression *ex = inter->interpret(*it);
-        port = (int) ex->calculate();
+    } catch (exception& e) {
+        auto* inter = new Interpreter();
+        port = (int) inter->interpret(*it);
+        delete inter;
     }
-    auto *t2 = new thread(&ConnectCommand::callingForSending, this, port, ip);
-    //thread t2(&ConnectCommand::callingForSending, this, port, ip);
+    auto* t2 = new thread(&ConnectCommand::callingForSending, this, port, ip);
+    s->update_threads(t2);
     t2->detach();
     return 3;
 }

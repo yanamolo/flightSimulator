@@ -39,9 +39,8 @@
 #define MIXTURE "/controls/engines/current-engine/mixture"
 #define MASTER_BAT "/controls/switches/master-bat"
 #define MASTER_ALT "/controls/switches/master-alt"
-#define RMP "/engines/engine/rpm"
+#define RPM "/engines/engine/rpm"
 #define MAXVAL 60000000000000000000000000000000000000000000000000.0
-
 #include "SymbolTable.h"
 
 #include <map>

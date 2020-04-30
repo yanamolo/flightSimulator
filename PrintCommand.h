@@ -8,7 +8,7 @@
 #include "Command.h"
 #include "Defines.h"
 
-class PrintCommand : public Command {
+class PrintCommand: public Command {
 public:
     int execute(list<string>::iterator it);
 };

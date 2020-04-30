@@ -9,13 +9,12 @@
 #include "Command.h"
 #include "Defines.h"
 
-class ConnectCommand : public Command {
+class ConnectCommand: public Command {
 private:
-    Client *client = new Client();
+    Client* client = new Client();
 public:
     int execute(list<string>::iterator it);
-
-    void callingForSending(int port, const char *ip);
+    void callingForSending(int port,const char* ip);
 };
 
 

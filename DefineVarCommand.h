@@ -4,10 +4,9 @@
 
 #ifndef EX3_DEFINEVARCOMMAND_H
 #define EX3_DEFINEVARCOMMAND_H
-
 #include "Command.h"
 
-class DefineVarCommand : public Command {
+class DefineVarCommand: public Command {
 public:
     int execute(list<string>::iterator it);
 };

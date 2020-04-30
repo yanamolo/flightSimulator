@@ -9,16 +9,13 @@
 
 class Lexer {
 private:
-    list <string> orders;
+    list<string> orders;
 public:
-    string eraseSpaces(string from, string to, string allString);
-
+    string eraseTabs(string line);
+    string eraseSpaces(string toCheck);
     Lexer();
-
     string subTheString(string sub, int start, int end);
-
-    list <string> lexer();
-
+    list<string> lexer(char* file_path);
     void splitLine(string line);
 };
 

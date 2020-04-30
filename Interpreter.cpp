@@ -37,7 +37,7 @@ void Interpreter::outCharsOfStack() {
 queue<string> Interpreter::infixToPostfix(string s) {
 
     if (s[0] == '-') {
-        stackStr.push("@");
+        stackStr.push ("@");
         s = s.substr(1);
     }
 
@@ -99,7 +99,7 @@ queue<string> Interpreter::infixToPostfix(string s) {
             }
             outCharsOfStack();
             countParenthesis--;
-            if (copyString.length() != 1) {
+            if (copyString.length()!= 1) {
                 if (copyString[1] == '+') {
                     while (!stackStr.empty()) {
                         if ((stackStr.top() == "*") || (stackStr.top() == "/")) {
@@ -184,10 +184,10 @@ queue<string> Interpreter::infixToPostfix(string s) {
 
     }
 
-
     if (countParenthesis != 0) {
         throw "no closing sign ')' ";
     }
+
     while (!stackStr.empty()) {
         queuePostfix.push(stackStr.top());
         stackStr.pop();
@@ -202,9 +202,9 @@ Interpreter::Interpreter() {
 
 // placing value of variable in the input string
 string Interpreter::getExAfterPlacing(string str, string key, int startKey) {
-    SymbolTable *symbolTable = symbolTable->getTable();
+    SymbolTable* symbolTable = symbolTable->getTable();
 
-    map<string, Var *>::iterator it = symbolTable->getNameMap().find(key);
+    map<string, Var*>::iterator it = symbolTable->getNameMap().find(key);
     while (it != symbolTable->getNameMap().end()) {
         string tmp = str.substr(0, startKey);
         string stringVal = to_string(it->second->getValue());
@@ -219,15 +219,16 @@ string Interpreter::getExAfterPlacing(string str, string key, int startKey) {
     return str;
 }
 
-Expression *Interpreter::interpret(string s) {
+float Interpreter::interpret(string s) {
 
     setVariables(&s);
 
     // if the string is in 1 length
     if (s.length() == 1) {
         if (isdigit(s[0])) {
-            Expression *e = new Value(stod(s));
-            return e;
+            Expression* e = new Value (stof(s));
+            return  e->calculate();
+            //return e;
         } else {
             throw "invalid string";
         }
@@ -236,12 +237,12 @@ Expression *Interpreter::interpret(string s) {
     //check validation- when there are tew signs in a row the string is not valid!
     int counter = 0;
     for (unsigned int i = 0; i < s.length(); i++) {
-        if ((s[i] == '*') || (s[i] == '/') || (s[i] == '-') || (s[i] == '+')) {
+        if ((s[i] == '*') || (s[i] == '/') || (s[i] == '-') ||(s[i] == '+')) {
             counter++;
             if (counter == 2) {
                 throw "invalid string";
             }
-        } else if ((i > 0) && (s[i] == '(') && (s[i - 1] == ')')) {
+        } else if ((i > 0) && (s[i] == '(') && (s[i-1] ==')')) {
             throw "invalid string - )( without binary/unary sign";
         } else {
             counter = 0;
@@ -251,7 +252,7 @@ Expression *Interpreter::interpret(string s) {
     queue<string> postFix = infixToPostfix(s);
 
     //create the expression while using the stack of expressions
-    stack<Expression *> expressions;
+    stack<Expression*> expressions;
     while (!queuePostfix.empty()) {
         if (queuePostfix.front() == "@") {
             Expression *x = expressions.top();
@@ -289,7 +290,9 @@ Expression *Interpreter::interpret(string s) {
         queuePostfix.pop();
     }
 
-    return expressions.top();
+    float value = expressions.top()->calculate();
+    delete expressions.top();
+    return value;
 }
 
 /**
@@ -297,7 +300,7 @@ Expression *Interpreter::interpret(string s) {
  * @param vars string of variables
  */
 void Interpreter::setVariables(string *s) {
-    SymbolTable *symbolTable = symbolTable->getTable();
+    SymbolTable* symbolTable = symbolTable->getTable();
     string str = *s;
     bool partOfKey = false;
     string key = "";
@@ -305,34 +308,42 @@ void Interpreter::setVariables(string *s) {
 
     //placing values of vars from symbolTable
     for (unsigned int i = 0; i < str.length(); i++) {
+        if (str[i] == ' ') {
+            continue;
+        }
+
         if ((str[i] == ('/')) || (str[i] == ('-')) || (str[i] == ('+')) || (str[i] == ('*')) ||
             (str[i] == ('(')) || (str[i] == (')'))) {
+            if (!partOfKey) {
+                continue;
+            }
             partOfKey = false; // end of key
             auto it = symbolTable->getNameMap().find(key);
             Var *var = it->second;
 
-            if (var != nullptr) { // if found in symbolTable
-                string tmp = str.substr(0, startKey);
-                string stringVal = to_string(it->second->getValue());
+            string tmp;
+            string stringVal;
+            try {
+                float num = stof(key);
+                tmp = str.substr(0, startKey);
+                stringVal = key;
+                tmp += stringVal;
+                key = "";
+                continue;
+            } catch (exception &e) {
+                tmp = str.substr(0, startKey);
+                stringVal = to_string(it->second->getValue());
 
                 if (stringVal[0] == '-') {
                     string putBrackets = "(" + stringVal + ")";
                     stringVal = putBrackets;
                 }
-
                 tmp += stringVal;
                 int j = i;
                 i = tmp.length() /*- 1*/;
                 tmp += str.substr(j);
                 str = tmp;
                 key = "";
-            } else {
-                try {
-                    float num = stof(key);
-                    continue;
-                } catch (exception &e) {
-                    throw "variable not found in symbolTable";
-                }
             }
         } else { // part of key
             if (!partOfKey) { // save the start of Key index
@@ -345,45 +356,6 @@ void Interpreter::setVariables(string *s) {
                 i = str.length();
             }
         }
-        /*if (((str[i] >= 'A') && (str[i] <= 'Z')) || ((str[i] >= 'a') && (str[i] <= 'z'))
-            || (str[i] == '_') || isdigit(str[i])) {
-            if (!partOfKey) {
-                partOfKey = true;
-                startKey = i;
-            }
-            key += str[i];
-            if (str.length() - 1 == i) {
-                str = getExAfterPlacing(str, key, startKey);
-                i = str.length();
-            }
-        } else {
-            try {
-                if (float num = stof(key)) {
-                    continue;
-                }
-            } catch(exception& e) {
-            }
-            partOfKey = false;
-            map<string, float>::iterator it = variables.find(key);
-            key = "";
-            if (it != variables.end()) {
-                string tmp = str.substr(0, startKey);
-                string stringVal = to_string(it->second);
-
-                if (stringVal[0] == '-') {
-                    string putBrackets = "(" + stringVal + ")";
-                    stringVal = putBrackets;
-                }
-
-                tmp += stringVal;
-                int j = i;
-                i = tmp.length() - 1;
-                tmp += str.substr(j);
-                str = tmp;
-            } else {
-                throw "variable not found in map";
-            }
-        }*/
     }
 
     if (partOfKey) { // if the end of string was a var
@@ -414,67 +386,6 @@ void Interpreter::setVariables(string *s) {
     }
     //update the real string s
     *s = str;
-    /*map<string, Var*> varMap = s->getMap();
-        for (map<string, Var*>::iterator it = varMap.begin(); it != varMap.end(); ++it) {
-            this->variables.insert(pair<string, float>(it->first, it->second->getValue()));
-        }
-
-
-
-    if (vars.empty()) {
-        throw "Error! no variables to set";
-    }
-    int splitNumber = vars.find("=");
-    if (splitNumber < 0) {
-        throw "Error! invalid string of variables";
-    }
-    while (splitNumber >= 0) {
-        string key = vars.substr(0, splitNumber);
-        if (!(key[0] >= 'a' && key[0] <='z') && (!(key[0] >= 'A' && key[0] <= 'Z')) && (key[0] != '_')) {
-            throw "key can't start with digit or dot";
-        }
-        string restOfString = vars.substr(splitNumber + 1);
-        if ((!(isdigit(restOfString[0]))) && (!(restOfString[0] == '-'))) {
-            throw "value of variable does not start with a digit";
-        }
-        int splitNumber2 = restOfString.find(";");
-        string valString = "";
-        string rest = "";
-        if (splitNumber2 < 0) {
-            valString = restOfString;
-        } else {
-            valString = restOfString.substr(0, splitNumber2);
-            rest = restOfString.substr(splitNumber2 + 1);
-        }
-
-        for (unsigned int i = 0; i < valString.length(); i++) {
-            if ((i == 0) && (valString[0] == '-')) {
-                if (valString.length() == 1) {
-                    throw "value of variable is only a - sign without a value";
-                } else {
-                    continue;
-                }
-            }
-            if (!(isdigit(valString[i])) && ((valString[i]) != '.')) {
-                throw "variable contains non-digit or dot char";
-            }
-        }
-        float value = stof(valString);
-        bool foundInMap = false;
-        for (map<string, float>::iterator it = variables.begin(); it != variables.end(); ++it) {
-            if (it->first == key) {
-                it->second = value;
-                foundInMap = true;
-                break;
-            }
-        }
-        if (!foundInMap) {
-            variables.insert(pair<string, float>(key, value));
-        }
-
-        vars = rest;
-        splitNumber = vars.find("=");
-    }*/
 }
 
 Variable::Variable(string n, float v) : name(n), value(v) {}
@@ -511,19 +422,15 @@ Variable &Variable::operator++(int) {
 
 float Variable::calculate() { return this->value; }
 
-
 Value::Value(float d) : val(d) {}
-
 float Value::calculate() { return this->val; }
 
 UPlus::UPlus(Expression *ex) {
     e = ex;
 }
-
 UPlus::~UPlus() {
     delete e;
 }
-
 float UPlus::calculate() {
     return e->calculate();
 }
@@ -532,71 +439,57 @@ float UPlus::calculate() {
 UMinus::UMinus(Expression *ex) {
     e = ex;
 }
-
 UMinus::~UMinus() {
     delete e;
 }
-
 float UMinus::calculate() {
     return -1 * (e->calculate());
 }
-
 
 Plus::Plus(Expression *ex1, Expression *ex2) {
     left = ex1;
     right = ex2;
 }
-
 Plus::~Plus() {
     delete left;
     delete right;
 }
-
 float Plus::calculate() {
     return left->calculate() + right->calculate();
 }
-
 
 Minus::Minus(Expression *ex1, Expression *ex2) {
     left = ex1;
     right = ex2;
 }
-
 Minus::~Minus() {
     delete left;
     delete right;
 }
-
 float Minus::calculate() {
     return left->calculate() - right->calculate();
 }
-
 
 Mul::Mul(Expression *ex1, Expression *ex2) {
     left = ex1;
     right = ex2;
 }
-
 Mul::~Mul() {
     delete left;
     delete right;
 }
-
 float Mul::calculate() {
     return left->calculate() * right->calculate();
 }
-
 
 Div::Div(Expression *ex1, Expression *ex2) {
     left = ex1;
     right = ex2;
 }
-
 Div::~Div() {
     delete left;
     delete right;
 }
-
 float Div::calculate() {
     float resRight = right->calculate();
     if (resRight == 0) {

@@ -10,13 +10,12 @@ int SleepCommand::execute(list<string>::iterator it) {
     int miliseconds;
     try {
         miliseconds = stoi(*it);
-    } catch (exception &e) {
-        Interpreter *inter = new Interpreter();
-        Expression *ex = inter->interpret(*it);
-        float value = ex->calculate();
+    } catch (exception& e) {
+        Interpreter* inter = new Interpreter();
+        float value = inter->interpret(*it);
         miliseconds = (int) value;
+        delete inter;
     }
-    miliseconds = miliseconds / 1000;
     this_thread::sleep_for(chrono::milliseconds(miliseconds));
     return 2;
 }

@@ -7,7 +7,7 @@
 Var::~Var() {
 }
 
-// create var without sim
+/** create var without sim */
 Var::Var(string varName, float valueVar) {
     this->name = varName;
     this->direction.clear();
@@ -15,7 +15,7 @@ Var::Var(string varName, float valueVar) {
     this->value = valueVar;
 }
 
-// create var without value
+/** create var without value */
 Var::Var(string nameVar, string dirVar, string simVar) {
     this->name = nameVar;
     this->direction = dirVar;
@@ -25,20 +25,7 @@ Var::Var(string nameVar, string dirVar, string simVar) {
 
 void Var::setValue(float valueVar) {
     this->value = valueVar;
-    if (this->sim == "->") {
-        this->valueChanged = true;
-    }
 }
-
-bool Var::isValueChanged() {
-    return this->valueChanged;
-}
-
-void Var::valueUsed() {
-    this->valueChanged = false;
-
-}
-
 
 Var::Var(const Var &var) {
     this->name = var.name;

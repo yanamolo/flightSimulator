@@ -8,10 +8,11 @@
 #include "Command.h"
 #include "Defines.h"
 
-class SleepCommand : public Command {
+class SleepCommand: public Command {
 public:
     int execute(list<string>::iterator it);
 };
+
 
 
 #endif //EX3_SLEEPCOMMAND_H

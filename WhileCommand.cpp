@@ -5,17 +5,21 @@
 #include "WhileCommand.h"
 #include "Parse.h"
 
+/** create list of all commands in the while scope and execute these commands with new parser
+ *  in the end of the loop we check the condition for continue or end the loop */
 int WhileCommand::execute(list<string>::iterator it) {
     list<string>::iterator first_it = it;
     bool condition = conditionRes(it);
+    Parse *parser;
     advance(it, 5); // it is first command
     int jumps = createList(it);
     while (condition) {
-        Parse *parser = new Parse(list_commands);
+        parser = new Parse(list_commands);
         parser->parse();
         condition = conditionRes(first_it);
     }
-    return jumps;
+    list_commands.clear();
+    return jumps + 1;
 }
 
 int WhileCommand::createList(list<string>::iterator it) {
@@ -25,19 +29,19 @@ int WhileCommand::createList(list<string>::iterator it) {
         it++;
         jumps++;
     }
-    return jumps;
+    it++;
+    return jumps + 1;
 }
 
 bool WhileCommand::conditionRes(list<string>::iterator it) {
-    Interpreter *inter = new Interpreter();
+    Interpreter* inter = new Interpreter();
     it++; // it is the left expression
-    Expression *ex_left = inter->interpret(*it);
-    this->val_left = ex_left->calculate();
+    this->val_left = inter->interpret(*it);
     it++; // it is the symbol (=, != ..)
     this->op = *it;
     it++; // it is the right expression
-    Expression *ex_right = inter->interpret(*it);
-    this->val_right = ex_right->calculate();
+    this->val_right = inter->interpret(*it);
+    delete inter;
     if (op == "<") {
         if (val_left < val_right) {
             return true;

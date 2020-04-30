@@ -10,15 +10,12 @@
 using namespace std;
 
 int OpenServerCommand::execute(list<string>::iterator it) {
+    SymbolTable* s = s->getTable();
     it++;
     int portS;
-    try {
-        portS = stoi(*it);
-    } catch (exception &e) {
-        Interpreter *inter = new Interpreter();
-        Expression *ex = inter->interpret(*it);
-        portS = (int) ex->calculate();
-    }
+    Interpreter *inter = new Interpreter();
+    portS = (int) inter->interpret(*it);
+    delete inter;
     //create socket
     int socketfd = socket(AF_INET, SOCK_STREAM, 0);
     if (socketfd == -1) {
@@ -57,8 +54,8 @@ int OpenServerCommand::execute(list<string>::iterator it) {
         std::cout << "Someone connected to server" << std::endl;
     }
     close(socketfd);
-    thread *t1 = new thread(&OpenServerCommand::callingForAccept, this, client_socket);
-    //thread t1(&OpenServerCommand::callingForAccept, this, portS);
+    auto *t1 = new thread(&OpenServerCommand::callingForAccept, this, client_socket);
+    s->update_threads(t1);
     t1->detach();
     return 2;
 }
@@ -67,3 +64,6 @@ void OpenServerCommand::callingForAccept(int client_socket) {
     this->server->runServer(client_socket);
 }
 
+OpenServerCommand::~OpenServerCommand() {
+    delete this->server;
+}
